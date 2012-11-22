@@ -35,6 +35,10 @@ data Node
 anno int Node@anchor;
 anno type[value] Node@\tag;
 
+private set[type[value]] SUPPORTED_TYPES 
+  = {#int, #str, #real, #datetime, #str, #bool, #loc}
+  ;
+
 @javaClass{lang.yaml.RascalYAML}
 @reflect{Uses type reifier}
 public java Node loadYAML(str src);
@@ -61,6 +65,7 @@ public Node BAD_YAML =
    sequence([
       scalar("abc")[@\tag=#int],
       scalar("cde")[@\tag=#str],
+      scalar("unsupported")[@\tag=#node],
       reference(4),
       sequence([])[@anchor=4]
    ])[@anchor=2]))[@anchor=2];
@@ -77,7 +82,9 @@ public set[str] checkYAML(Node n)
   + { "Duplicate anchor <i>" | i <- duplicateAnchors(n) }
   + { "Forward reference <x>" | x <- undefinedRefs(n, {}, {})[1] }
   + { "Untagged scalar <x>" | x <- untaggedScalars(n) }
-  + { "Wrongly typed scalar <x>" | x <- wronglyTypedScalars(n) };
+  + { "Wrongly typed scalar <x>" | x <- wronglyTypedScalars(n) }
+  + { "Unsupported scalar type \"<t>\"" | t <- unsupportedTypes(n) }
+  ;
 
 public set[Node] badAnchors(Node n)
   = { s | /s:scalar(_) <- n, (s@anchor)? }
@@ -89,6 +96,9 @@ public set[Node] wronglyTypedScalars(Node n)
 
 // Doesn't work: always succeeds.
 public bool okValue(type[&T <: value] t, value v) = (&T _ := v);
+
+public set[type[value]] unsupportedTypes(Node n) 
+  = { t | /s:scalar(_) <- n, s@\tag?, type[value] t := s@\tag, t notin SUPPORTED_TYPES };
 
 public set[Node] untaggedScalars(Node n) 
   = { s | /s:scalar(_) <- n, !(s@\tag?) }
