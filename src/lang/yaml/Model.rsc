@@ -44,15 +44,15 @@ public java Node loadYAML(str src);
 public java str dumpYAML(Node yaml);
 
 public str TEST_YAML = 
-"default: &DEFAULT
-  URL:          stooges.com
-  throw_pies?:  true  
-  stooges:  &stooge_list
-    larry:  first_stooge
-    moe:    second_stooge
-    nuther:  *stooge_list
-    curly:  third_stooge
-    cycle:  *DEFAULT";
+        "default: &DEFAULT
+        ' URL:          stooges.com
+        ' throw_pies?:  true  
+        ' stooges:  &stooge_list
+        '   larry:  first_stooge
+        '   moe:    second_stooge
+        '   nuther:  *stooge_list
+        '   curly:  third_stooge
+        '   cycle:  *DEFAULT";
     
    
 public Node BAD_YAML =
@@ -68,7 +68,7 @@ public Node BAD_YAML =
 // Complains about not being able to use external type (type[value]?)
 public test bool testLoadDump(Node n) {
   yaml = dumpYAML(n);
-  return n == loadYAML(n);
+  return n == loadYAML(yaml);
 }
 
 
